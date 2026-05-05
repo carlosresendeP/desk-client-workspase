@@ -49,4 +49,12 @@ export async function createProject(data: CreateProjectInput): Promise<Project> 
 // ─── Atualizar ───────────────────────────────────────────────────────────────
 
 
+// ─── Atualizar status ────────────────────────────────────────────────────────
+export async function updateProjectStatus(id: string, status: Project["status"]): Promise<void> {
+  await prisma.project.update({ where: { id }, data: { status } });
+}
+
 // ─── Deletar ─────────────────────────────────────────────────────────────────
+export async function deleteProject(id: string): Promise<void> {
+  await prisma.project.delete({ where: { id } });
+}

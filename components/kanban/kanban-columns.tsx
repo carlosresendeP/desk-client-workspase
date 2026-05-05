@@ -128,7 +128,7 @@ function KanbanCard({
         )}
 
         {/* Valor */}
-        {project.totalValue > 0 && (
+        {project.totalValue != null && project.totalValue > 0 && (
           <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground font-mono ml-auto">
             <DollarSign className="size-3" />
             {project.totalValue.toLocaleString("pt-BR", {
@@ -193,9 +193,14 @@ function KanbanColumn({
 
 // ─── KanbanColumns (componente principal) ────────────────────────────────────
 
-export default function KanbanColumns() {
-  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
+interface KanbanColumnsProps {
+  initialProjects: Project[];
+}
+
+export default function KanbanColumns({ initialProjects }: KanbanColumnsProps) {
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [dragStartStatus, setDragStartStatus] = useState<ProjectStatus | null>(null);
 
   // configura o sensor de drag com threshold de 5px para não conflitar com cliques
   const sensors = useSensors(
@@ -219,6 +224,7 @@ export default function KanbanColumns() {
   function handleDragStart({ active }: DragStartEvent) {
     const project = projects.find((p) => p.id === active.id);
     setActiveProject(project ?? null);
+    setDragStartStatus(project?.status ?? null);
   }
 
   // ── Drag over: muda coluna em tempo real ────────────────────────────────────
@@ -248,11 +254,22 @@ export default function KanbanColumns() {
   // ── Drag end: reordena dentro da coluna ─────────────────────────────────────
   function handleDragEnd({ active, over }: DragEndEvent) {
     setActiveProject(null);
-    if (!over) return;
 
     const activeId = active.id as string;
-    const overId = over.id as string;
+    const currentProject = projects.find((p) => p.id === activeId);
 
+    if (currentProject && dragStartStatus && currentProject.status !== dragStartStatus) {
+      fetch(`/api/projects/${activeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: currentProject.status }),
+      });
+    }
+
+    setDragStartStatus(null);
+
+    if (!over) return;
+    const overId = over.id as string;
     if (activeId === overId) return;
 
     setProjects((prev) => {
