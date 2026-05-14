@@ -7,7 +7,7 @@ export default function NovoProjetoPage() {
     <>
       <Header title="Novo projeto" />
       <div className="max-w-2xl">
-        <ProjectForm onSubmit={createProjectAction} />
+        <ProjectForm />
       </div>
     </>
   )
