@@ -142,7 +142,7 @@ export function ProjectListTable({ projects }: ProjectListTableProps) {
                     <div className="w-24 h-0.5 bg-border rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full bg-primary"
-                        style={{ width: `${project.progress}%` }}
+                        style={{ width: `${project.status === 'entregue' || project.status === 'concluido' ? 100 : project.progress}%` }}
                       />
                     </div>
                   </div>

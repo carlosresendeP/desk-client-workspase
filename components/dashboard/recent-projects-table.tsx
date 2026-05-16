@@ -89,7 +89,7 @@ export function RecentProjectsTable({ projects }: RecentProjectsTableProps) {
                     </TableCell>
                     <TableCell className="py-3">
                       <span className="flex items-center gap-1.5 text-sm text-foreground">
-                        <span className={`size-1.5 rounded-full flex-shrink-0 ${status.color}`} />
+                        <span className={`size-1.5 rounded-full shrink-0 ${status.color}`} />
                         {status.label}
                       </span>
                     </TableCell>

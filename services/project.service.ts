@@ -42,12 +42,30 @@ export async function getProjectById(id: string): Promise<Project | null> {
 // ─── Criar ───────────────────────────────────────────────────────────────────
 
 export async function createProject(data: CreateProjectInput): Promise<Project> {
-  const row = await prisma.project.create({ data });
+  const row = await prisma.project.create({
+    data: {
+      ...data,
+      startDate: data.startDate ? new Date(data.startDate) : null,
+      deadline:  data.deadline  ? new Date(data.deadline)  : null,
+      links:     data.links ?? [],
+    },
+  });
   return serialize(row);
 }
 
 // ─── Atualizar ───────────────────────────────────────────────────────────────
-
+export async function updateProject(id: string, data: import("@/lib/validations/project.validations").UpdateProjectInput): Promise<Project> {
+  const row = await prisma.project.update({
+    where: { id },
+    data: {
+      ...data,
+      startDate: data.startDate !== undefined ? (data.startDate ? new Date(data.startDate) : null) : undefined,
+      deadline:  data.deadline  !== undefined ? (data.deadline  ? new Date(data.deadline)  : null) : undefined,
+      links:     data.links ?? undefined,
+    },
+  });
+  return serialize(row);
+}
 
 // ─── Atualizar status ────────────────────────────────────────────────────────
 export async function updateProjectStatus(id: string, status: Project["status"]): Promise<void> {

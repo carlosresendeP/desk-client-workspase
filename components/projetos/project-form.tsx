@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 import { CreateProjectInput } from '@/types/project'
 import { createProjectSchema } from '@/lib/validations/project.validations'
 import { toast } from 'sonner'
-import Router from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export type ProjectFormValues = CreateProjectInput
 
@@ -41,6 +41,7 @@ const PRIORITY_OPTIONS = [
 interface ProjectFormProps {}
 
 export function ProjectForm(_props: ProjectFormProps) {
+  const router = useRouter()
   const {
     register,
     control,
@@ -69,7 +70,7 @@ async function handleFormSubmit(values: ProjectFormValues) {
     }
 
     toast.success('Projeto criado com sucesso!')
-    Router.push('/projetos')
+    router.push('/projetos')
   } catch {
     toast.error('Erro ao criar projeto. Tente novamente.')
   }

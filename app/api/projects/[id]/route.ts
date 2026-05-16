@@ -1,7 +1,8 @@
 // app/api/projects/[id]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { deleteProject, getProjectById, updateProjectStatus } from "@/services/project.service";
+import { deleteProject, getProjectById, updateProject, updateProjectStatus } from "@/services/project.service";
+import { updateProjectSchema } from "@/lib/validations/project.validations";
 
 function errorResponse(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -17,6 +18,23 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 
     return NextResponse.json({ message: 'Projetos encontrados', project }, { status: 200 });
+  } catch {
+    return errorResponse("Erro interno do servidor", 500);
+  }
+}
+
+//put - atualiza projeto completo
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const parsed = updateProjectSchema.safeParse(body);
+
+    if (!parsed.success)
+      return errorResponse("Dados inválidos", 422);
+
+    const project = await updateProject(id, parsed.data);
+    return NextResponse.json({ project }, { status: 200 });
   } catch {
     return errorResponse("Erro interno do servidor", 500);
   }

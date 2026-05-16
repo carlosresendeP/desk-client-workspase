@@ -76,16 +76,25 @@ export default async function ProjetoPage({ params }: ProjetoPageProps) {
             {/* Timeline */}
             <div>
               <p className="text-[11px] text-muted-foreground mb-2">Progresso</p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                <span>{project.startDate ? formatDate(project.startDate) : '—'}</span>
-                <span className="font-semibold text-foreground">{project.progress}%</span>
-                <span>{project.deadline ? formatDate(project.deadline) : '—'}</span>
-              </div>
-              <Progress value={project.progress}>
-                <ProgressTrack>
-                  <ProgressIndicator className="bg-status-andamento" />
-                </ProgressTrack>
-              </Progress>
+              {(() => {
+                const displayProgress = (project.status === 'entregue' || project.status === 'concluido')
+                  ? 100
+                  : project.progress
+                return (
+                  <>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                      <span>{project.startDate ? formatDate(project.startDate) : '—'}</span>
+                      <span className="font-semibold text-foreground">{displayProgress}%</span>
+                      <span>{project.deadline ? formatDate(project.deadline) : '—'}</span>
+                    </div>
+                    <Progress value={displayProgress}>
+                      <ProgressTrack>
+                        <ProgressIndicator className="bg-status-andamento" />
+                      </ProgressTrack>
+                    </Progress>
+                  </>
+                )
+              })()}
             </div>
           </CardContent>
         </Card>

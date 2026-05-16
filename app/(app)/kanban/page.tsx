@@ -4,6 +4,7 @@ import KanbanColumns from "@/components/kanban/kanban-columns";
 import { getProjects } from "@/services/project.service";
 
 export default async function KanbanPage() {
+  //buscar todos os projetos no banco de dados
   const projects = await getProjects();
 
   return (

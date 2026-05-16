@@ -1,10 +1,98 @@
-import { CiWarning } from "react-icons/ci";
+'use client'
 
+import { useState, useMemo, useEffect } from 'react'
+import { Plus, Search } from 'lucide-react'
+import { Header } from '@/components/layout/header'
+import { LeadTable } from '@/components/leads/lead-table'
+import { NewLeadDialog } from '@/components/leads/new-lead-dialog'
+import { buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import type { Lead, LeadStatus } from '@/types/lead'
+import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+
+type FilterStatus = LeadStatus | 'todos'
 
 export default function LeadsPage() {
+  const [leads, setLeads]           = useState<Lead[]>([])
+  const [search, setSearch]         = useState('')
+  const [status, setStatus]         = useState<FilterStatus>('todos')
+  const [dialogOpen, setDialogOpen] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/leads')
+      .then((r) => {
+        if (!r.ok) throw new Error()
+        return r.json() as Promise<Lead[]>
+      })
+      .then(setLeads)
+      .catch(() => toast.error('Erro ao carregar leads.'))
+  }, [dialogOpen])
+
+  const filtered = useMemo(() => {
+    return leads.filter((l) => {
+      const matchSearch = [l.name, l.email, l.phone, l.city, l.niche].some((f) =>
+        f?.toLowerCase().includes(search.toLowerCase()),
+      )
+      const matchStatus = status === 'todos' || l.status === status
+      return matchSearch && matchStatus
+    })
+  }, [leads, search, status])
+
   return (
-    <div className="flex items-center justify-center h-full">
-      <p className="text-2xl text-muted-foreground flex items-center gap-2"> <CiWarning className="text-amber-400"/>Em breve</p>
-    </div>
+    <>
+      <Header
+        title="Leads"
+        action={
+          <button
+            onClick={() => setDialogOpen(true)}
+            className={cn(buttonVariants({ size: 'sm' }))}
+          >
+            <Plus className="size-3.5 mr-1.5" />
+            Novo lead
+          </button>
+        }
+      />
+
+      <div className="mb-6 flex items-center gap-3 flex-wrap">
+        <div className="relative max-w-sm w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Buscar por nome, email, cidade..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <Select value={status} onValueChange={(v) => setStatus(v as FilterStatus)}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="novo">Novo</SelectItem>
+            <SelectItem value="contatado">Contatado</SelectItem>
+            <SelectItem value="qualificado">Qualificado</SelectItem>
+            <SelectItem value="perdido">Perdido</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <span className="text-sm text-muted-foreground ml-auto">
+          {filtered.length} {filtered.length === 1 ? 'lead' : 'leads'}
+        </span>
+      </div>
+
+      <LeadTable leads={filtered} />
+
+      <NewLeadDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+    </>
   )
 }
