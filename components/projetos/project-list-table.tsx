@@ -18,10 +18,12 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Formata um número como moeda BRL (ex: R$ 1.500)
 function formatCurrency(value: number) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+// Formata uma string de data para o padrão dd/MM/yyyy em pt-BR
 function formatDeadline(date: string) {
   return format(new Date(date), "dd/MM/yyyy", { locale: ptBR });
 }
@@ -30,11 +32,13 @@ interface ProjectListTableProps {
   projects: Project[];
 }
 
+// Tabela de projetos com suporte a exclusão via modal de confirmação inline
 export function ProjectListTable({ projects }: ProjectListTableProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
+  //verifica se esta vazio ==0
   if (projects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center border border-border rounded-lg bg-card">
@@ -48,6 +52,7 @@ export function ProjectListTable({ projects }: ProjectListTableProps) {
     );
   }
 
+  // Envia DELETE para a API e atualiza a lista; exibe toast de sucesso ou erro
   async function handleConfirmDelete() {
     if (!selectedProjectId) return;
     setIsDeleting(true);
@@ -64,6 +69,7 @@ export function ProjectListTable({ projects }: ProjectListTableProps) {
       setSelectedProjectId(null);
       router.refresh();
     } catch (error) {
+      console.error(error);
       toast.error("Erro ao excluir projeto. Tente novamente.");
     } finally {
       setIsDeleting(false);

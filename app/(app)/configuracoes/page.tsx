@@ -4,15 +4,24 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Header } from "@/components/layout/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { authClient } from "@/lib/auth-client";
 import { profileSchema, ProfileInput } from "@/lib/validations/auth";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 function getInitials(name?: string | null) {
@@ -26,9 +35,25 @@ function getInitials(name?: string | null) {
 }
 
 export default function ConfiguracoesPage() {
+  const router = useRouter();
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+
+  async function handleDeleteAccount() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/account', { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      await authClient.signOut();
+      router.push('/cadastro');
+    } catch {
+      toast.error('Erro ao excluir conta. Tente novamente.');
+      setIsDeleting(false);
+    }
+  }
 
   const {
     register,
@@ -192,6 +217,72 @@ export default function ConfiguracoesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Zona de perigo */}
+      <Card className="border-destructive/40 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <TriangleAlert className="size-4 text-destructive" />
+            <CardTitle className="text-destructive">Zona de perigo</CardTitle>
+          </div>
+          <CardDescription>
+            Ações irreversíveis que afetam permanentemente sua conta.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">Excluir conta</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Remove permanentemente sua conta e todos os dados associados.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Excluir conta
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dialog de confirmação */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir conta permanentemente?</DialogTitle>
+            <DialogDescription>
+              Esta ação não pode ser desfeita. Todos os seus dados: projetos, clientes, leads
+              e tudo relacionado a eles serão removidos para sempre.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Excluir permanentemente'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

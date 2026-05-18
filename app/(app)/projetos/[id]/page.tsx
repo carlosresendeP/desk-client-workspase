@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { ProjectStatusBadge } from '@/components/projetos/project-status-badge'
 import { getProjectById } from '@/services/project.service'
+import { getUserId } from '@/lib/session'
 import { cn } from '@/lib/utils'
 
 const PRIORITY_LABEL = { baixa: 'Baixa', media: 'Média', alta: 'Alta' }
@@ -29,7 +30,8 @@ interface ProjetoPageProps {
 
 export default async function ProjetoPage({ params }: ProjetoPageProps) {
   const { id } = await params
-  const project = await getProjectById(id)
+  const userId = await getUserId()
+  const project = await getProjectById(id, userId ?? '')
   if (!project) notFound()
 
   const pending = (project.totalValue ?? 0) - project.receivedValue

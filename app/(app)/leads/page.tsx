@@ -22,6 +22,7 @@ type FilterStatus = LeadStatus | 'todos'
 
 export default function LeadsPage() {
   const [leads, setLeads]           = useState<Lead[]>([])
+  const [isLoading, setIsLoading]   = useState(true)
   const [search, setSearch]         = useState('')
   const [status, setStatus]         = useState<FilterStatus>('todos')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -34,6 +35,7 @@ export default function LeadsPage() {
       })
       .then(setLeads)
       .catch(() => toast.error('Erro ao carregar leads.'))
+      .finally(() => setIsLoading(false))
   }, [dialogOpen])
 
   const filtered = useMemo(() => {
@@ -90,7 +92,21 @@ export default function LeadsPage() {
         </span>
       </div>
 
-      <LeadTable leads={filtered} />
+      {isLoading ? (
+        <div className="rounded-lg border border-border overflow-hidden animate-pulse">
+          <div className="h-10 bg-muted border-b border-border" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 px-4 py-3 border-b border-border last:border-0">
+              <div className="h-3 bg-muted rounded w-1/4" />
+              <div className="h-3 bg-muted rounded w-1/5" />
+              <div className="h-3 bg-muted rounded w-1/6" />
+              <div className="h-5 bg-muted rounded-full w-20 ml-auto" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <LeadTable leads={filtered} />
+      )}
 
       <NewLeadDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </>

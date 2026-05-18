@@ -21,7 +21,7 @@ export function ProjectLinksField({ control }: ProjectLinksFieldProps) {
           <Input
             {...control.register(`links.${index}.label`)}
             placeholder="Label (ex: Figma)"
-            className="w-32 flex-shrink-0"
+            className="w-32 shrink-0"
           />
           <Input
             {...control.register(`links.${index}.url`)}

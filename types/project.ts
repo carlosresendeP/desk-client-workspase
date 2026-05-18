@@ -14,6 +14,7 @@ export interface Project {
   id:            string;
   title:         string;
   client:        string | null;
+  clientId:      string | null;
   description:   string | null;
   status:        ProjectStatus;
   priority:      ProjectPriority;

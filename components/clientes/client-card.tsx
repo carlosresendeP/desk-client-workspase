@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, Phone, MoreVertical } from 'lucide-react'
+import { Mail, Phone, MoreVertical, FolderOpen } from 'lucide-react'
 import type { Client } from '@/types/client'
 import { ClientAvatar } from './client-avatar'
 import {
@@ -74,6 +74,11 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
         {!client.email && !client.phone && (
           <p className="text-muted-foreground text-sm">Sem informações de contato.</p>
         )}
+      </div>
+
+      <div className="flex items-center gap-1.5 text-muted-foreground text-xs mt-auto pt-2 border-t border-border">
+        <FolderOpen className="size-3.5" />
+        <span>{client.projectCount} {client.projectCount === 1 ? 'projeto' : 'projetos'}</span>
       </div>
     </article>
   )

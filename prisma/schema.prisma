@@ -23,8 +23,12 @@ enum ProjectPriority {
 
 model Project {
   id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   title          String
   client         String?
+  clientId       String?
+  clientRef      Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
   description    String?
   status         ProjectStatus   @default(backlog)
   priority       ProjectPriority @default(media)
@@ -50,6 +54,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  projects      Project[]
+  clients       Client[]
+  leads         Lead[]
 }
 
 model Session {
@@ -98,18 +105,23 @@ enum LeadStatus {
 }
 
 model Client {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   email     String?
   phone     String?
   sector    String?
   notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Lead {
   id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   phone     String?
   email     String?

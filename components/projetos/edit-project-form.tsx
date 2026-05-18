@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { createProjectSchema } from '@/lib/validations/project.validations'
 import { toast } from 'sonner'
 import type { Project } from '@/types/project'
+import type { Client } from '@/types/client'
 
 const STATUS_OPTIONS = [
   { value: 'backlog',      label: 'Backlog' },
@@ -33,14 +34,16 @@ const PRIORITY_OPTIONS = [
 
 interface EditProjectFormProps {
   project: Project
+  clients: Client[]
 }
 
-export function EditProjectForm({ project }: EditProjectFormProps) {
+export function EditProjectForm({ project, clients }: EditProjectFormProps) {
   const router = useRouter()
 
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -48,6 +51,7 @@ export function EditProjectForm({ project }: EditProjectFormProps) {
     defaultValues: {
       title:         project.title,
       client:        project.client ?? '',
+      clientId:      project.clientId ?? undefined,
       description:   project.description ?? '',
       status:        project.status,
       priority:      project.priority,
@@ -61,6 +65,7 @@ export function EditProjectForm({ project }: EditProjectFormProps) {
     },
   })
 
+  // envia os dados para a api
   async function onSubmit(values: object) {
     const res = await fetch(`/api/projects/${project.id}`, {
       method: 'PUT',
@@ -90,8 +95,35 @@ export function EditProjectForm({ project }: EditProjectFormProps) {
 
         {/* Cliente */}
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="client">Cliente</Label>
-          <Input id="client" placeholder="Nome do cliente" {...register('client')} />
+          <Label>Cliente</Label>
+          <Controller
+            control={control}
+            name="clientId"
+            render={({ field }) => (
+              <Select
+                value={field.value ?? 'none'}
+                onValueChange={(val) => {
+                  if (val === 'none') {
+                    field.onChange(null)
+                    setValue('client', null)
+                  } else {
+                    field.onChange(val)
+                    setValue('client', clients.find(c => c.id === val)?.name ?? null)
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecionar cliente..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem cliente</SelectItem>
+                  {clients.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
 
         {/* Status */}

@@ -20,6 +20,7 @@ import { CreateProjectInput } from '@/types/project'
 import { createProjectSchema } from '@/lib/validations/project.validations'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import type { Client } from '@/types/client'
 
 export type ProjectFormValues = CreateProjectInput
 
@@ -37,14 +38,16 @@ const PRIORITY_OPTIONS = [
   { value: 'alta',  label: 'Alta' },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface ProjectFormProps {}
+interface ProjectFormProps {
+  clients: Client[]
+}
 
-export function ProjectForm(_props: ProjectFormProps) {
+export function ProjectForm({ clients }: ProjectFormProps) {
   const router = useRouter()
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProjectFormValues>({
@@ -56,7 +59,7 @@ export function ProjectForm(_props: ProjectFormProps) {
     }
   }
 )
-
+// envia os dados para a api
 async function handleFormSubmit(values: ProjectFormValues) {
   try {
     const res = await fetch('/api/projects', {
@@ -93,8 +96,35 @@ async function handleFormSubmit(values: ProjectFormValues) {
 
         {/* Cliente */}
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="client">Cliente</Label>
-          <Input id="client" placeholder="Nome do cliente" {...register('client')} />
+          <Label>Cliente</Label>
+          <Controller
+            control={control}
+            name="client"
+            render={({ field }) => (
+              <Select
+                value={field.value ?? 'none'}
+                onValueChange={(val) => {
+                  if (val === 'none') {
+                    field.onChange(null)
+                    setValue('client', null)
+                  } else {
+                    field.onChange(val)
+                    setValue('client', clients.find(c => c.id === val)?.name ?? null)
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecionar cliente..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem cliente</SelectItem>
+                  {clients.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
 
         {/* Status */}

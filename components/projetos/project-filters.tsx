@@ -21,6 +21,7 @@ const STATUS_OPTIONS: { value: ProjectStatus | 'todos'; label: string }[] = [
   { value: 'entregue', label: 'Entregue' },
 ]
 
+// component para filtrar os projetos
 export function ProjectFilters() {
   const router = useRouter()
   const pathname = usePathname()
@@ -29,6 +30,7 @@ export function ProjectFilters() {
   const search = searchParams.get('q') ?? ''
   const status = searchParams.get('status') ?? 'todos'
 
+  // atualiza os parametros da busca
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
     if (value && value !== 'todos') {

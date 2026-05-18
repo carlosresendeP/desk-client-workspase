@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { getProjectById } from '@/services/project.service'
+import { getClients } from '@/services/client.service'
+import { getUserId } from '@/lib/session'
 import { EditProjectForm } from '@/components/projetos/edit-project-form'
 
 interface EditarProjetoPageProps {
@@ -9,13 +11,17 @@ interface EditarProjetoPageProps {
 
 export default async function EditarProjetoPage({ params }: EditarProjetoPageProps) {
   const { id } = await params
-  const project = await getProjectById(id)
+  const userId = await getUserId()
+  const [project, clients] = await Promise.all([
+    getProjectById(id, userId ?? ''),
+    getClients(userId ?? ''),
+  ])
   if (!project) notFound()
 
   return (
     <div className="space-y-6">
       <Header title={`Editar: ${project.title}`} />
-      <EditProjectForm project={project} />
+      <EditProjectForm project={project} clients={clients} />
     </div>
   )
 }

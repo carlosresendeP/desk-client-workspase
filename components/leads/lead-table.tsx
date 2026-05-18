@@ -83,6 +83,25 @@ export function LeadTable({ leads }: LeadTableProps) {
     router.refresh()
   }
 
+  async function handleConvert(lead: Lead) {
+    const res = await fetch('/api/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:  lead.name,
+        email: lead.email ?? undefined,
+        phone: lead.phone ?? undefined,
+        notes: lead.notes ?? undefined,
+      }),
+    })
+    if (!res.ok) {
+      toast.error('Erro ao converter lead em cliente.')
+      return
+    }
+    toast.success(`${lead.name} convertido em cliente!`)
+    router.refresh()
+  }
+
   return (
     <div className="rounded-lg border border-border bg-card overflow-hidden">
       <Table>
@@ -157,6 +176,10 @@ export function LeadTable({ leads }: LeadTableProps) {
                         <DropdownMenuSeparator />
                       </>
                     )}
+                    <DropdownMenuItem onClick={() => handleConvert(lead)}>
+                      Converter em cliente
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
                       onClick={() => handleDelete(lead.id)}

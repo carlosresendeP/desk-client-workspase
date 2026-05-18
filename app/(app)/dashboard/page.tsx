@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/header'
 import { MetricCard } from '@/components/dashboard/metric-card'
 import { RecentProjectsTable } from '@/components/dashboard/recent-projects-table'
 import { getProjects } from '@/services/project.service'
+import { countNewLeadsThisWeek } from '@/services/lead.service'
+import { getUserId } from '@/lib/session'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -16,8 +18,11 @@ function formatCurrency(value: number) {
 // Componente principal
 export default async function DashboardPage() {
 
-  //buscar todos os projetos no banco de dados
-  const projects = await getProjects()
+  const userId = await getUserId()
+  const [projects, newLeads] = await Promise.all([
+    getProjects(userId ?? ''),
+    countNewLeadsThisWeek(userId ?? ''),
+  ])
 
   //contar projetos ativos
   const ativos = projects.filter((p) => p.status === 'em_andamento').length
@@ -87,7 +92,7 @@ export default async function DashboardPage() {
         />
         <MetricCard
           label="Leads"
-          value="0"
+          value={String(newLeads)}
           subtitle="novos esta semana"
           icon={UserPlus}
         />

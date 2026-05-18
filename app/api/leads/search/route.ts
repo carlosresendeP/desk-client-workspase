@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { apifySearchSchema } from '@/lib/validations/lead.validations'
 import { createManyLeads } from '@/services/lead.service'
 import type { CreateLeadInput } from '@/lib/validations/lead.validations'
+import { getSessionOrUnauthorized } from '@/lib/session'
 
 interface ApifyPlace {
   title?:        string
@@ -14,6 +15,8 @@ interface ApifyPlace {
 }
 
 export async function POST(req: NextRequest) {
+  const { userId, error } = await getSessionOrUnauthorized()
+  if (error) return error
   try {
     const body = await req.json()
     const parsed = apifySearchSchema.safeParse(body)
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
         notes:   p.address ?? null,
       }))
 
-    const leads = await createManyLeads(items)
+    const leads = await createManyLeads(items, userId!)
     return NextResponse.json({ leads, total: leads.length }, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.name === 'TimeoutError')

@@ -8,6 +8,7 @@ const projectLinkSchema = z.object({
 export const createProjectSchema = z.object({
   title:         z.string().min(1, "Título obrigatório").max(255),
   client:        z.string().max(255).optional().nullable(),
+  clientId:      z.string().uuid().optional().nullable(),
   description:   z.string().max(1000).optional().nullable(),
   status:        z.enum(["backlog", "em_andamento", "pausado", "concluido", "entregue"]).optional(),
   priority:      z.enum(["baixa", "media", "alta"]).optional(),

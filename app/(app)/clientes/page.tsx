@@ -13,11 +13,11 @@ import { toast } from 'sonner'
 
 export default function ClientesPage() {
   const [clients, setClients]       = useState<Client[]>([])
+  const [isLoading, setIsLoading]   = useState(true)
   const [search, setSearch]         = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing]       = useState<Client | null>(null)
 
-  //busca dados da api
   useEffect(() => {
     fetch('/api/clients')
       .then((r) => {
@@ -26,6 +26,7 @@ export default function ClientesPage() {
       })
       .then(setClients)
       .catch(() => toast.error('Erro ao carregar clientes.'))
+      .finally(() => setIsLoading(false))
   }, [dialogOpen])
 
 
@@ -83,7 +84,25 @@ export default function ClientesPage() {
         </span>
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl p-6 border border-border space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="size-11 rounded-full bg-muted" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-muted rounded w-2/3" />
+                  <div className="h-3 bg-muted rounded w-1/3" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 border border-border rounded-lg bg-card text-center">
           <p className="text-sm font-medium text-foreground mb-1">
             {search ? 'Nenhum cliente encontrado' : 'Ainda sem clientes'}

@@ -36,6 +36,7 @@ export default function KanbanColumns({ initialProjects }: KanbanColumnsProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [dragStartStatus, setDragStartStatus] = useState<ProjectStatus | null>(null);
 
+  // Usa sensores do DndKit para detectar eventos de drag
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -68,12 +69,14 @@ export default function KanbanColumns({ initialProjects }: KanbanColumnsProps) {
 
     if (activeId === overId) return;
 
+    // Encontra o status do card ativo e da coluna onde ele está sendo arrastado
     const activeStatus = findStatus(activeId);
     const overStatus =
       findStatus(overId) ?? COLUMNS.find((c) => c.id === overId)?.id ?? null;
 
     if (!activeStatus || !overStatus || activeStatus === overStatus) return;
 
+    // Atualiza o status do card
     setProjects((prev) =>
       prev.map((p) =>
         p.id === activeId ? { ...p, status: overStatus as ProjectStatus } : p,
@@ -95,13 +98,14 @@ export default function KanbanColumns({ initialProjects }: KanbanColumnsProps) {
         body: JSON.stringify({ status: currentProject.status }),
       });
     }
-
+    // Limpa o status original do drag
     setDragStartStatus(null);
 
     if (!over) return;
     const overId = over.id as string;
     if (activeId === overId) return;
-
+    
+    // Reordena os cards dentro da coluna
     setProjects((prev) => {
       const oldIndex = prev.findIndex((p) => p.id === activeId);
       const newIndex = prev.findIndex((p) => p.id === overId);

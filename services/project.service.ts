@@ -9,6 +9,7 @@ function serialize(p: PrismaProject): Project {
     id:            p.id,
     title:         p.title,
     client:        p.client ?? null,
+    clientId:      p.clientId ?? null,
     description:   p.description ?? null,
     status:        p.status as Project["status"],
     priority:      p.priority as Project["priority"],
@@ -25,26 +26,24 @@ function serialize(p: PrismaProject): Project {
   }
 }
 
-// ─── Listar todos ────────────────────────────────────────────────────────────
-
-export async function getProjects(): Promise<Project[]> {
-  const rows = await prisma.project.findMany({ orderBy: { position: "asc" } });
+export async function getProjects(userId: string): Promise<Project[]> {
+  const rows = await prisma.project.findMany({
+    where: { userId },
+    orderBy: { position: "asc" },
+  });
   return rows.map(serialize);
 }
 
-// ─── Buscar por id ───────────────────────────────────────────────────────────
-
-export async function getProjectById(id: string): Promise<Project | null> {
-  const row = await prisma.project.findUnique({ where: { id } });
+export async function getProjectById(id: string, userId: string): Promise<Project | null> {
+  const row = await prisma.project.findUnique({ where: { id, userId } });
   return row ? serialize(row) : null;
 }
 
-// ─── Criar ───────────────────────────────────────────────────────────────────
-
-export async function createProject(data: CreateProjectInput): Promise<Project> {
+export async function createProject(data: CreateProjectInput, userId: string): Promise<Project> {
   const row = await prisma.project.create({
     data: {
       ...data,
+      userId,
       startDate: data.startDate ? new Date(data.startDate) : null,
       deadline:  data.deadline  ? new Date(data.deadline)  : null,
       links:     data.links ?? [],
@@ -53,10 +52,9 @@ export async function createProject(data: CreateProjectInput): Promise<Project> 
   return serialize(row);
 }
 
-// ─── Atualizar ───────────────────────────────────────────────────────────────
-export async function updateProject(id: string, data: import("@/lib/validations/project.validations").UpdateProjectInput): Promise<Project> {
+export async function updateProject(id: string, data: import("@/lib/validations/project.validations").UpdateProjectInput, userId: string): Promise<Project> {
   const row = await prisma.project.update({
-    where: { id },
+    where: { id, userId },
     data: {
       ...data,
       startDate: data.startDate !== undefined ? (data.startDate ? new Date(data.startDate) : null) : undefined,
@@ -67,12 +65,10 @@ export async function updateProject(id: string, data: import("@/lib/validations/
   return serialize(row);
 }
 
-// ─── Atualizar status ────────────────────────────────────────────────────────
-export async function updateProjectStatus(id: string, status: Project["status"]): Promise<void> {
-  await prisma.project.update({ where: { id }, data: { status } });
+export async function updateProjectStatus(id: string, status: Project["status"], userId: string): Promise<void> {
+  await prisma.project.update({ where: { id, userId }, data: { status } });
 }
 
-// ─── Deletar ─────────────────────────────────────────────────────────────────
-export async function deleteProject(id: string): Promise<void> {
-  await prisma.project.delete({ where: { id } });
+export async function deleteProject(id: string, userId: string): Promise<void> {
+  await prisma.project.delete({ where: { id, userId } });
 }

@@ -21,31 +21,42 @@ function serialize(l: PrismaLead): Lead {
   }
 }
 
-export async function getLeads(): Promise<Lead[]> {
-  const rows = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } })
+export async function getLeads(userId: string): Promise<Lead[]> {
+  const rows = await prisma.lead.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  })
   return rows.map(serialize)
 }
 
-export async function getLeadById(id: string): Promise<Lead | null> {
-  const row = await prisma.lead.findUnique({ where: { id } })
+export async function getLeadById(id: string, userId: string): Promise<Lead | null> {
+  const row = await prisma.lead.findUnique({ where: { id, userId } })
   return row ? serialize(row) : null
 }
 
-export async function createLead(data: CreateLeadInput): Promise<Lead> {
-  const row = await prisma.lead.create({ data })
+export async function createLead(data: CreateLeadInput, userId: string): Promise<Lead> {
+  const row = await prisma.lead.create({ data: { ...data, userId } })
   return serialize(row)
 }
 
-export async function createManyLeads(items: CreateLeadInput[]): Promise<Lead[]> {
-  const rows = await Promise.all(items.map((data) => prisma.lead.create({ data })))
+export async function createManyLeads(items: CreateLeadInput[], userId: string): Promise<Lead[]> {
+  const rows = await Promise.all(items.map((data) => prisma.lead.create({ data: { ...data, userId } })))
   return rows.map(serialize)
 }
 
-export async function updateLead(id: string, data: UpdateLeadInput): Promise<Lead> {
-  const row = await prisma.lead.update({ where: { id }, data })
+export async function updateLead(id: string, data: UpdateLeadInput, userId: string): Promise<Lead> {
+  const row = await prisma.lead.update({ where: { id, userId }, data })
   return serialize(row)
 }
 
-export async function deleteLead(id: string): Promise<void> {
-  await prisma.lead.delete({ where: { id } })
+export async function deleteLead(id: string, userId: string): Promise<void> {
+  await prisma.lead.delete({ where: { id, userId } })
+}
+
+export async function countNewLeadsThisWeek(userId: string): Promise<number> {
+  const since = new Date()
+  since.setDate(since.getDate() - 7)
+  return prisma.lead.count({
+    where: { userId, status: 'novo', createdAt: { gte: since } },
+  })
 }
