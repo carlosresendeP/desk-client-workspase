@@ -22,26 +22,27 @@ enum ProjectPriority {
 }
 
 model Project {
-  id             String          @id @default(uuid())
-  userId         String
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title          String
-  client         String?
-  clientId       String?
-  clientRef      Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  description    String?
-  status         ProjectStatus   @default(backlog)
-  priority       ProjectPriority @default(media)
-  startDate      DateTime?
-  deadline       DateTime?
-  progress       Int             @default(0)
-  totalValue     Float?
-  receivedValue  Float           @default(0)
-  links          Json            @default("[]")
-  notes          String?
-  position       Int             @default(0)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  client        String?
+  clientId      String?
+  clientRef     Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  description   String?
+  status        ProjectStatus   @default(backlog)
+  priority      ProjectPriority @default(media)
+  startDate     DateTime?
+  deadline      DateTime?
+  progress      Int             @default(0)
+  totalValue    Float?
+  receivedValue Float           @default(0)
+  links         Json            @default("[]")
+  notes         String?
+  position      Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  quotes        Quote[]
 }
 
 model User {
@@ -52,11 +53,15 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  whatsapp      String?
+  occupation    String?
   sessions      Session[]
   accounts      Account[]
   projects      Project[]
   clients       Client[]
   leads         Lead[]
+  services      Service[]
+  quotes        Quote[]
 }
 
 model Session {
@@ -114,6 +119,7 @@ model Client {
   sector    String?
   notes     String?
   projects  Project[]
+  quotes    Quote[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -133,4 +139,57 @@ model Lead {
   notes     String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+// ─── QUOTES MODULE ────────────────────────────────────────────────────────────
+
+model Service {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  basePrice   Float
+  unit        String   @default("un")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Quote {
+  id            String      @id @default(uuid())
+  slug          String      @unique
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId      String?
+  clientRef     Client?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  projectId     String?
+  projectRef    Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  clientName    String
+  clientEmail   String?
+  clientWhatsapp String?
+  items         Json        @default("[]")
+  notes         String?
+  validUntil    DateTime?
+  status        QuoteStatus @default(DRAFT)
+  clientMessage String?
+  views         Int         @default(0)
+  approvedAt    DateTime?
+  declinedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([slug])
+  @@index([clientId])
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  APPROVED
+  DECLINED
+  EXPIRED
 }
