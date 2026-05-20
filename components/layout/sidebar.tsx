@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Columns2, FolderOpen, Users, Target, Settings, Plus, Briefcase } from 'lucide-react'
+import { LayoutDashboard, Columns2, FolderOpen, Users, Target, Settings, Plus, Briefcase, FileText, Wand2 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -16,7 +16,9 @@ const navItems = [
 ]
 
 const toolItems = [
+  { label: 'Orçamentos', href: '/orcamentos', icon: FileText },
   { label: 'Serviços', href: '/servicos', icon: Briefcase },
+  { label: 'Como usar', href: '/comoUsar', icon: Wand2 },
 ]
 
 export function Sidebar() {
@@ -80,6 +82,7 @@ export function Sidebar() {
             </Link>
           )
         })}
+
       </nav>
 
       <div className="px-2 pb-4">

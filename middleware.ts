@@ -24,6 +24,8 @@ export const config = {
     "/clientes/:path*",
     "/orcamentos/:path*",
     "/servicos/:path*",
+    "/comoUsar/:path*",
+    "/comoUsar",
     "/login",
     "/cadastro",
   ],
