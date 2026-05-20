@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Columns2, FolderOpen, Users, Target, Settings, Plus } from 'lucide-react'
+import { LayoutDashboard, Columns2, FolderOpen, Users, Target, Settings, Plus, Briefcase } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,10 @@ const navItems = [
   { label: 'Projetos', href: '/projetos', icon: FolderOpen },
   { label: 'Clientes', href: '/clientes', icon: Users },
   { label: 'Leads', href: '/leads', icon: Target },
+]
+
+const toolItems = [
+  { label: 'Serviços', href: '/servicos', icon: Briefcase },
 ]
 
 export function Sidebar() {
@@ -33,6 +37,29 @@ export function Sidebar() {
 
       <nav className="flex-1 px-2">
         {navItems.map(({ label, href, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors relative',
+                active
+                  ? 'bg-sidebar-accent text-sidebar-foreground font-medium'
+                  : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+              )}
+            >
+              {active && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-accent" />
+              )}
+              <Icon className="size-4 shrink-0" />
+              {label}
+            </Link>
+          )
+        })}
+
+
+        {toolItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
