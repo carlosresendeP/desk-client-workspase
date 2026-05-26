@@ -65,7 +65,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md border-border bg-card shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
-            Gestão Clientes
+            Desk. Login
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             Insira os seus dados para aceder à plataforma

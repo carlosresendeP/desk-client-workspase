@@ -78,7 +78,7 @@ export default function CadastroPage() {
       <Card className="w-full max-w-md border-border bg-card shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
-            Criar Conta
+           Desk. Criar Conta
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             Preencha os dados abaixo para criar a sua conta

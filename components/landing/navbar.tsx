@@ -53,7 +53,7 @@ export function Navbar() {
           <span className={`font-black text-lg tracking-tight transition-colors ${logoTextClass}`}>
             Desk<span className="text-accent">.</span>
             <p className="text-xs font-medium text-muted-foreground">
-              Clint workspace
+              Client workspace
             </p>
           </span>
         </Link>

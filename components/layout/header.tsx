@@ -39,12 +39,22 @@ export function Header({ title, action }: HeaderProps) {
       <h1 className="text-xl font-semibold text-foreground">{title}</h1>
 
       <div className="flex items-center gap-4">
+        <Button
+          size="sm"
+          className="w-30 bg-background hover:bg-foreground"
+          onClick={() => router.push("/comoUsar")}
+        >
+          como usar?
+        </Button>
         {action}
 
         {user && (
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={user.image ?? undefined} alt={user.name ?? ""} />
+              <AvatarImage
+                src={user.image ?? undefined}
+                alt={user.name ?? ""}
+              />
               <AvatarFallback className="text-sm font-medium">
                 {getInitials(user.name)}
               </AvatarFallback>
@@ -54,7 +64,9 @@ export function Header({ title, action }: HeaderProps) {
               <span className="text-sm font-medium text-foreground">
                 {user.name}
               </span>
-              <span className="text-xs text-muted-foreground">{user.email}</span>
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
             </div>
 
             <Button
